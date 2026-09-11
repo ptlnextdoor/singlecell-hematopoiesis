@@ -23,15 +23,15 @@ import figure_style as fs
 
 
 def main():
+    import json
     fs.use_paper_style()
 
-    # Panel A data: reference mapping confusion
-    X, y = make_scrna(seed=0)
-    Xtr, Xte, ytr, yte = train_test_split(X, y, test_size=0.3, random_state=0, stratify=y)
-    res, pred = map_query(Xtr, ytr, Xte, yte, method="centroid")
-    cm = confusion_matrix(yte, pred, normalize="true")
+    # Panel A data: REAL result on the Asiri Lab's GSE262440 (3 donors), from
+    # results/gse262440_mapping.json. Falls back to synthetic if it is absent.
+    res_path = os.path.join(HERE, "..", "results", "gse262440_mapping.json")
+    real = json.load(open(res_path)) if os.path.exists(res_path) else None
 
-    # Panel B data: ARI vs dropout
+    # Panel B data: ARI vs dropout (synthetic ground truth, 20 seeds)
     dropouts = [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6]
     aris = {d: [] for d in dropouts}
     for seed in range(20):
@@ -44,25 +44,38 @@ def main():
     fig, axes = fs.new_figure(cols=2, panels=2)
     axA, axB = axes
 
-    im = axA.imshow(cm, cmap=fs.SEQUENTIAL, vmin=0, vmax=1, aspect="auto")
-    axA.set_xticks(range(len(CELL_TYPES))); axA.set_yticks(range(len(CELL_TYPES)))
-    axA.set_xticklabels(CELL_TYPES, rotation=45, ha="right", fontsize=6)
-    axA.set_yticklabels(CELL_TYPES, fontsize=6)
-    axA.set_xlabel("predicted cell type")
-    axA.set_ylabel("true cell type")
-    axA.set_title(f"Reference mapping: {res.accuracy*100:.0f}% accuracy, "
-                  f"{len(CELL_TYPES)} types")
-    fig.colorbar(im, ax=axA, fraction=0.046, pad=0.04, label="row-normalized rate")
+    if real:
+        donors = real["per_donor"]
+        labels = [f"donor {i+1}\n({d['n_cells_gated']} cells, {d['n_populations']} pops)"
+                  for i, d in enumerate(donors)]
+        acc = [100 * d["heldout_accuracy_rna_only"] for d in donors]
+        chance = [100 * d["chance_accuracy"] for d in donors]
+        x = np.arange(len(donors)); w = 0.38
+        axA.bar(x - w/2, chance, w, color=fs.PALETTE[7], label="random guess")
+        axA.bar(x + w/2, acc, w, color=fs.PALETTE[0], label="RNA-only mapper")
+        for xi, a, c in zip(x, acc, chance):
+            axA.annotate(f"{a/c:.1f}x", (xi + w/2, a), ha="center", va="bottom",
+                         fontsize=8, xytext=(0, 3), textcoords="offset points")
+        axA.set_xticks(x); axA.set_xticklabels(labels, fontsize=7)
+        axA.set_ylabel("held-out accuracy (%)")
+        axA.set_title("Real data: RNA recovers protein-defined cell types at ~2x chance")
+        axA.set_ylim(0, max(acc) * 1.3)
+        fs.opaque_legend(axA, loc="upper left")
+    else:
+        axA.text(0.5, 0.5, "run scripts/gse262440_mapping.py first", ha="center",
+                 va="center", transform=axA.transAxes)
 
     axB.errorbar(dropouts, means, yerr=stds, color=fs.PALETTE[0], lw=2,
-                 marker="o", capsize=3)
-    axB.axhline(0, color=fs.PALETTE[7], lw=0.8, ls="--")
-    axB.set_xlabel("allele-dropout rate")
-    axB.set_ylabel("clonal recovery ARI (1 = perfect, 0 = chance)")
-    axB.set_title("Clonal recovery degrades gracefully with dropout")
+                 marker="o", capsize=3, label="mean ± sd, 20 runs")
+    axB.axhline(0, color=fs.PALETTE[7], lw=1, ls="--", label="random grouping")
+    axB.set_xlabel("fraction of true mutations missed (allele dropout)")
+    axB.set_ylabel("clone recovery score (1 = perfect, 0 = random)")
+    axB.set_title("Clone recovery degrades gracefully as calls go missing")
+    axB.set_ylim(-0.08, 1.08)
+    fs.opaque_legend(axB)
 
-    fig.suptitle("Single-cell hematopoiesis: cell-type mapping and clonal "
-                 "recovery on synthetic ground truth")
+    fig.suptitle("Single-cell hematopoiesis: mapping cells to types on the Asiri Lab's "
+                 "GSE262440, and recovering clones from mutations")
     fs.assert_no_clip(fig)
     out = os.path.join(HERE, "..", "figures", "singlecell_eval")
     os.makedirs(os.path.dirname(out), exist_ok=True)
