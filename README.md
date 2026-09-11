@@ -1,54 +1,58 @@
 # singlecell-hematopoiesis
 
-A small, reproducible pipeline for **single-cell analysis of hematopoiesis**:
-cell-type reference mapping and clonal-structure recovery, the two computational
-problems at the center of systems hematology.
+Two questions blood-cancer researchers ask about single cells, answered with
+small, testable code:
 
-Built as an independent study inspired by the Asiri Lab (systems hematology,
-Stanford; systemshematology.org) line of work, e.g. the single-cell reference
-atlas of human hematopoiesis and single-cell mutational profiling for AML MRD.
-Not affiliated with the lab.
+1. **What kind of cell is this?** Given a cell we've never seen, match it to
+   the closest known type in a labeled reference (like matching a face to a
+   photo album).
+2. **Which cells came from the same clone?** Cancer grows as families of cells
+   that share the same mutations. Given a table of which cell has which
+   mutation, group the cells back into their families.
 
-## What this does
+I built this after reading the Asiri Lab's (Stanford) single-cell map of human
+blood-cell development and their work tracking leukemia clones through
+treatment. It's my own independent project, not affiliated with the lab.
 
-Two classic single-cell tasks, on data small enough to run anywhere:
+## What it does
 
-1. **Reference mapping** - project query cells onto a labeled reference of
-   hematopoietic cell states with a nearest-centroid / kNN classifier, and report
-   label-transfer accuracy. Mirrors mapping leukemia cells onto a normal
-   hematopoiesis atlas.
-2. **Clonal recovery** - from a cells x mutations binary matrix, cluster cells
-   into clones and measure how well recovered clones match ground-truth clones
-   (adjusted Rand index). Mirrors single-cell mutational profiling of AML.
+![result](figures/singlecell_eval.png)
 
-## Quick start
+**Left:** on test data with 8 known cell types, the matcher gets every cell
+right (each row lights up only on its own diagonal).
+
+**Right:** clone recovery works well when mutation calls are clean, then
+degrades as more calls go missing. In real single-cell DNA sequencing, a
+mutation is often missed even when it's there (called "dropout"), so I test
+how much of that the method can tolerate. Score of 1 = perfect grouping,
+0 = random.
+
+## Try it in 30 seconds (no data needed)
 
 ```bash
-python -m pip install -r requirements.txt
-python scripts/selfcheck.py     # synthetic scRNA + mutation data, no download
+pip install -r requirements.txt
+python scripts/selfcheck.py
 ```
 
-The self-check builds synthetic single-cell data with known cell types and known
-clones, runs both tasks, and asserts recovery well above chance.
+This makes fake cells and fake clones where I *know* the right answer, then
+checks the code finds it.
 
-## Using real data
+## Run it on real data
 
-- Reference mapping: any labeled scRNA-seq reference (e.g. a hematopoiesis atlas)
-  as an `.h5ad`; adapter stub in `scripts/prep_scrna.py`.
-- Clonal recovery: a single-cell DNA variant matrix (cells x variants).
+The reference-matching part expects a labeled single-cell dataset (an `.h5ad`
+file, the standard format). `scripts/prep_scrna.py` is a starting point for
+loading one; it's not finished yet. The natural next step is to run it against
+the Asiri Lab's published reference (GEO accession GSE262440).
 
-## Repo layout
+## What's in here
 
 ```
-src/sceval/     reference mapping, clonal clustering, metrics
-scripts/        selfcheck, prep stub
+src/sceval/mapping.py   match new cells to known types
+src/sceval/clonal.py    group cells into clones by shared mutations
+src/sceval/synth.py     make fake data with known answers, for testing
+scripts/selfcheck.py    quick test on fake data
+scripts/make_figures.py makes the figure above
 ```
-
-## Before you email about this
-
-Read one Asiri Lab paper end to end (start with the Cell Reports single-cell
-hematopoiesis framework, 2025) and add a note reproducing a specific idea from
-it. That specificity is what makes the outreach land.
 
 ## License
 
