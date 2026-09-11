@@ -39,25 +39,26 @@ checks the code finds it.
 
 ## Run it on real data
 
-I ran the matcher on the Asiri Lab's own published data (GEO GSE262440, one
-healthy bone-marrow donor, 3,630 cells). Their dataset measures both gene
-expression and surface proteins on every cell, so I could:
+I ran the matcher on the Asiri Lab's own published data (GEO GSE262440), all
+three healthy bone-marrow donors, 3,140 gated cells total. Their dataset
+measures both gene expression and surface proteins on every cell, so I could:
 
 1. Label each cell using the **same surface-protein markers the paper uses**
-   (CD34, CD38, CD90, CD45RA, CD69, CLL1, CD2). This found all 8 of the paper's
-   stem/progenitor populations, from 21 to 896 cells each.
+   (CD34, CD38, CD90, CD45RA, CD69, CLL1, CD2).
 2. Ask whether **gene expression alone** can recover those protein-defined
    labels on held-out cells.
 
-| | held-out accuracy |
-|---|---|
-| Random guess (8 populations) | 12.5% |
-| Gene expression only | 25.2% |
+| donor | cells | populations found | chance | RNA-only accuracy | vs chance |
+|---|---|---|---|---|---|
+| 1 | 1,517 | 8 | 12.5% | 25.2% | 2.0x |
+| 2 | 1,172 | 6 | 16.7% | 48.0% | 2.9x |
+| 3 | 451 | 3 | 33.3% | 60.3% | 1.8x |
 
-So RNA carries some of the population identity, but only modestly. These
-progenitor subtypes are hard to tell apart by transcriptome alone, which is
-exactly why the paper needed protein markers to define them in the first
-place. Honest result, and a useful baseline.
+Same story in every donor: RNA carries the population identity at about 2x
+chance, but nowhere near perfectly. These progenitor subtypes are hard to tell
+apart by transcriptome alone, which is exactly why the paper needed protein
+markers to define them. Honest result, consistent across people, and a useful
+baseline for anything smarter.
 
 ```bash
 python scripts/gse262440_mapping.py --csv GSE262440_Healthy1-WTA-ADT_RSEC_MolsPerCell.csv.gz

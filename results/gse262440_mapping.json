@@ -1,20 +1,72 @@
 {
-  "dataset": "GSE262440 Healthy1 (Asiri Lab, Cell Reports 2025)",
-  "n_cells_total": 3630,
-  "n_cells_gated": 1517,
-  "populations": [
-    "CD34+CD38+ progenitor",
-    "GMP CLL1+",
-    "HSC (CD90+CD45RA-)",
-    "LMPP CD2+",
-    "LMPP CD2-",
-    "MPP CD69+",
-    "MPP CLL1+ (myeloid-biased)",
-    "MPP CLL1-CD69- (erythroid-biased)"
+  "dataset": "GSE262440 (Asiri Lab, Cell Reports 2025), all 3 healthy donors",
+  "per_donor": [
+    {
+      "dataset": "GSE262440 Healthy1 (Asiri Lab, Cell Reports 2025)",
+      "n_cells_total": 3630,
+      "n_cells_gated": 1517,
+      "populations": [
+        "CD34+CD38+ progenitor",
+        "GMP CLL1+",
+        "HSC (CD90+CD45RA-)",
+        "LMPP CD2+",
+        "LMPP CD2-",
+        "MPP CD69+",
+        "MPP CLL1+ (myeloid-biased)",
+        "MPP CLL1-CD69- (erythroid-biased)"
+      ],
+      "n_populations": 8,
+      "chance_accuracy": 0.125,
+      "heldout_accuracy_rna_only": 0.252,
+      "heldout_macro_f1": 0.167,
+      "note": "Labels come from the paper's surface-protein markers (ADT). Mapping uses gene expression only. Accuracy > chance means RNA carries the protein-defined population identity.",
+      "acc_over_chance": 2.02
+    },
+    {
+      "dataset": "GSE262440 Healthy1 (Asiri Lab, Cell Reports 2025)",
+      "n_cells_total": 3548,
+      "n_cells_gated": 1172,
+      "populations": [
+        "CD34+CD38+ progenitor",
+        "HSC (CD90+CD45RA-)",
+        "LMPP CD2+",
+        "MPP CD69+",
+        "MPP CLL1+ (myeloid-biased)",
+        "MPP CLL1-CD69- (erythroid-biased)"
+      ],
+      "n_populations": 6,
+      "chance_accuracy": 0.167,
+      "heldout_accuracy_rna_only": 0.48,
+      "heldout_macro_f1": 0.272,
+      "note": "Labels come from the paper's surface-protein markers (ADT). Mapping uses gene expression only. Accuracy > chance means RNA carries the protein-defined population identity.",
+      "acc_over_chance": 2.87
+    },
+    {
+      "dataset": "GSE262440 Healthy1 (Asiri Lab, Cell Reports 2025)",
+      "n_cells_total": 3109,
+      "n_cells_gated": 451,
+      "populations": [
+        "CD34+CD38+ progenitor",
+        "LMPP CD2+",
+        "MPP CLL1-CD69- (erythroid-biased)"
+      ],
+      "n_populations": 3,
+      "chance_accuracy": 0.333,
+      "heldout_accuracy_rna_only": 0.603,
+      "heldout_macro_f1": 0.436,
+      "note": "Labels come from the paper's surface-protein markers (ADT). Mapping uses gene expression only. Accuracy > chance means RNA carries the protein-defined population identity.",
+      "acc_over_chance": 1.81
+    }
   ],
-  "n_populations": 8,
-  "chance_accuracy": 0.125,
-  "heldout_accuracy_rna_only": 0.252,
-  "heldout_macro_f1": 0.167,
-  "note": "Labels come from the paper's surface-protein markers (ADT). Mapping uses gene expression only. Accuracy > chance means RNA carries the protein-defined population identity."
+  "summary": {
+    "n_donors": 3,
+    "total_cells_gated": 3140,
+    "acc_over_chance_per_donor": [
+      2.02,
+      2.87,
+      1.81
+    ],
+    "mean_acc_over_chance": 2.23,
+    "finding": "RNA-only mapping beats chance in every donor (1.8x-2.9x), but far from perfect: protein markers carry identity the transcriptome only partly does."
+  }
 }
