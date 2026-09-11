@@ -23,10 +23,18 @@ class MappingResult:
 
 
 def _embed(ref_X, query_X, n_pcs=20):
+    # Drop zero-variance genes (constant across the reference); scaling them
+    # divides by zero and poisons PCA with inf/nan on real data.
+    ref_X = np.asarray(ref_X, dtype=float)
+    query_X = np.asarray(query_X, dtype=float)
+    keep = ref_X.std(axis=0) > 1e-8
+    if not keep.any():
+        raise ValueError("reference has no informative (non-constant) features")
+    ref_X, query_X = ref_X[:, keep], query_X[:, keep]
     scaler = StandardScaler().fit(ref_X)
     ref_s = scaler.transform(ref_X)
     q_s = scaler.transform(query_X)
-    n_pcs = min(n_pcs, ref_s.shape[1], ref_s.shape[0] - 1)
+    n_pcs = max(1, min(n_pcs, ref_s.shape[1], ref_s.shape[0] - 1))
     pca = PCA(n_components=n_pcs, random_state=0).fit(ref_s)
     return pca.transform(ref_s), pca.transform(q_s)
 
