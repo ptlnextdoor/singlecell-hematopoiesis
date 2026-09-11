@@ -1,31 +1,54 @@
-# asiri-domain-template
+# singlecell-hematopoiesis
 
-Template anchor repo for the Round 3 (Stanford / Asiri) outreach. **Specialize
-this once the target's research area is known.**
+A small, reproducible pipeline for **single-cell analysis of hematopoiesis**:
+cell-type reference mapping and clonal-structure recovery, the two computational
+problems at the center of systems hematology.
 
-## How to specialize (do this before Round 3)
+Built as an independent study inspired by the Asiri Lab (systems hematology,
+Stanford; systemshematology.org) line of work, e.g. the single-cell reference
+atlas of human hematopoiesis and single-cell mutational profiling for AML MRD.
+Not affiliated with the lab.
 
-1. Identify Asiri's full name, lab, and subfield (e.g. NLP, systems, vision, HCI,
-   theory). Aayushya must provide this.
-2. Pick ONE recent paper from that lab.
-3. Replace this README and `src/` with a small, honest reproduction or evaluation
-   harness for a specific claim in that paper, following the pattern in the sibling
-   repos:
-   - a `scripts/selfcheck.py` that runs with no large download and asserts correctness
-   - a real result (one plot or one metric table)
-   - a stub adapter for the real public dataset
-4. Keep it a capability repo reused across every email in the Round 3 cluster;
-   put the paper-specific hook in each email, not in a new repo per person.
+## What this does
 
-## Pattern to copy
+Two classic single-cell tasks, on data small enough to run anywhere:
 
-See `../eeg-physio-ml` (a full working example: synthetic-data self-check,
-frozen-feature probes, dataset stub) and `../search-planning-robotics`
-(algorithm reproduction with a correctness self-check).
+1. **Reference mapping** - project query cells onto a labeled reference of
+   hematopoietic cell states with a nearest-centroid / kNN classifier, and report
+   label-transfer accuracy. Mirrors mapping leukemia cells onto a normal
+   hematopoiesis atlas.
+2. **Clonal recovery** - from a cells x mutations binary matrix, cluster cells
+   into clones and measure how well recovered clones match ground-truth clones
+   (adjusted Rand index). Mirrors single-cell mutational profiling of AML.
 
-## Status
+## Quick start
 
-Placeholder. Blocked on target field.
+```bash
+python -m pip install -r requirements.txt
+python scripts/selfcheck.py     # synthetic scRNA + mutation data, no download
+```
+
+The self-check builds synthetic single-cell data with known cell types and known
+clones, runs both tasks, and asserts recovery well above chance.
+
+## Using real data
+
+- Reference mapping: any labeled scRNA-seq reference (e.g. a hematopoiesis atlas)
+  as an `.h5ad`; adapter stub in `scripts/prep_scrna.py`.
+- Clonal recovery: a single-cell DNA variant matrix (cells x variants).
+
+## Repo layout
+
+```
+src/sceval/     reference mapping, clonal clustering, metrics
+scripts/        selfcheck, prep stub
+```
+
+## Before you email about this
+
+Read one Asiri Lab paper end to end (start with the Cell Reports single-cell
+hematopoiesis framework, 2025) and add a note reproducing a specific idea from
+it. That specificity is what makes the outreach land.
 
 ## License
 
