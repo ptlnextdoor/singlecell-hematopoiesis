@@ -1,0 +1,20 @@
+{
+  "dataset": "GSE262440 Healthy1 (Asiri Lab, Cell Reports 2025)",
+  "n_cells_total": 3630,
+  "n_cells_gated": 1517,
+  "populations": [
+    "CD34+CD38+ progenitor",
+    "GMP CLL1+",
+    "HSC (CD90+CD45RA-)",
+    "LMPP CD2+",
+    "LMPP CD2-",
+    "MPP CD69+",
+    "MPP CLL1+ (myeloid-biased)",
+    "MPP CLL1-CD69- (erythroid-biased)"
+  ],
+  "n_populations": 8,
+  "chance_accuracy": 0.125,
+  "heldout_accuracy_rna_only": 0.252,
+  "heldout_macro_f1": 0.167,
+  "note": "Labels come from the paper's surface-protein markers (ADT). Mapping uses gene expression only. Accuracy > chance means RNA carries the protein-defined population identity."
+}
